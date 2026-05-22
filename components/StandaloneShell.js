@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { ImageStudio, VideoStudio, LipSyncStudio, CinemaStudio, AudioStudio, MarketingStudio, WorkflowStudio, AgentStudio, AppsStudio, getUserBalance } from 'studio';
+import { ImageStudio, VideoStudio, ClippingStudio, LipSyncStudio, CinemaStudio, AudioStudio, MarketingStudio, WorkflowStudio, AgentStudio, AppsStudio, getUserBalance } from 'studio';
 
 const DesignAgentStudio = dynamic(() => import('studio').then(mod => mod.DesignAgentStudio), {
   ssr: false,
@@ -16,6 +16,7 @@ const TABS = [
   { id: 'image',   label: 'Image Studio' },
   { id: 'video',   label: 'Video Studio' },
   { id: 'audio',   label: 'Audio Studio' },
+  { id: 'clipping', label: 'AI Clipping' },
   { id: 'lipsync', label: 'Lip Sync' },
   { id: 'cinema',  label: 'Cinema Studio' },
   { id: 'marketing', label: 'Marketing Studio' },
@@ -260,9 +261,9 @@ export default function StandaloneShell() {
 
       {/* Header */}
       {isHeaderVisible && (
-        <header className="flex-shrink-0 h-14 border-b border-white/[0.03] flex items-center justify-between px-6 bg-black/20 backdrop-blur-md z-40">
+        <header className="flex-shrink-0 h-14 border-b border-white/[0.03] flex items-center justify-between px-6 bg-black/20 backdrop-blur-md z-40 gap-4">
           {/* Left: Logo */}
-          <div className="flex items-center gap-2">
+          <div className="flex-shrink-0 flex items-center gap-2">
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
@@ -271,28 +272,36 @@ export default function StandaloneShell() {
             <span className="text-sm font-bold tracking-tight hidden sm:block">OpenGenerativeAI</span>
           </div>
 
-          {/* Center: Navigation */}
-          <nav className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id)}
-                className={`relative py-4 text-[13px] font-medium transition-all whitespace-nowrap px-1 ${
-                  activeTab === tab.id
-                    ? 'text-[#22d3ee]'
-                    : 'text-white/70 hover:text-white'
-                }`}
-              >
-                {tab.label}
-                {activeTab === tab.id && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#22d3ee] rounded-full" />
-                )}
-              </button>
-            ))}
-          </nav>
+          {/* Center: Navigation Container with fade edges */}
+          <div className="flex-1 min-w-0 mx-4 sm:mx-6 relative overflow-hidden h-full flex items-center justify-start lg:justify-center">
+            {/* Fade Left Overlay */}
+            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#030303] to-transparent pointer-events-none z-10 block lg:hidden" />
+            
+            <nav className="flex items-center gap-4 overflow-x-auto scrollbar-none w-full lg:w-auto h-full px-4 lg:px-0">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  className={`relative text-[13px] font-medium transition-all duration-300 whitespace-nowrap px-1 flex-shrink-0 flex items-center h-full ${
+                    activeTab === tab.id
+                      ? 'text-[#22d3ee]'
+                      : 'text-white/50 hover:text-white'
+                  }`}
+                >
+                  <span className="relative z-10">{tab.label}</span>
+                  {activeTab === tab.id && (
+                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#22d3ee] to-[#a855f7] rounded-full shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+                  )}
+                </button>
+              ))}
+            </nav>
+            
+            {/* Fade Right Overlay */}
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#030303] to-transparent pointer-events-none z-10 block lg:hidden" />
+          </div>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex-shrink-0 flex items-center gap-4">
             <div className="flex items-center gap-3 bg-white/5 px-3 py-1.5 rounded-full border border-white/5 transition-colors">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               <div className="flex flex-col">
@@ -321,6 +330,7 @@ export default function StandaloneShell() {
       <div className="flex-1 min-h-0 relative overflow-hidden">
         {activeTab === 'image'   && <ImageStudio   apiKey={apiKey} droppedFiles={droppedFiles} onFilesHandled={handleFilesHandled} />}
         {activeTab === 'video'   && <VideoStudio   apiKey={apiKey} droppedFiles={droppedFiles} onFilesHandled={handleFilesHandled} />}
+        {activeTab === 'clipping' && <ClippingStudio apiKey={apiKey} droppedFiles={droppedFiles} onFilesHandled={handleFilesHandled} />}
         {activeTab === 'lipsync' && <LipSyncStudio apiKey={apiKey} droppedFiles={droppedFiles} onFilesHandled={handleFilesHandled} />}
         {activeTab === 'cinema'  && <CinemaStudio  apiKey={apiKey} />}
         {activeTab === 'audio'   && <AudioStudio   apiKey={apiKey} droppedFiles={droppedFiles} onFilesHandled={handleFilesHandled} />}

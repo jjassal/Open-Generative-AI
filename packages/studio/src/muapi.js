@@ -667,3 +667,13 @@ export async function getAppInterests(apiKey) {
     }
     return await response.json();
 }
+
+export async function runClipping(apiKey, params) {
+    const payload = {
+        video_url: params.video_url,
+        num_highlights: params.num_highlights || 3,
+        aspect_ratio: params.aspect_ratio || "9:16",
+        return_coordinates_only: !!params.return_coordinates_only
+    };
+    return submitAndPoll("ai-clipping", payload, apiKey, params.onRequestId, 900);
+}
